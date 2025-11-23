@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "proto.connection";
+option java_outer_classname = "ConnectionProto";
+
+import "common.proto";
+import "google/protobuf/empty.proto";
+
+service JoinNetwork {
+  rpc JoinWithNodesRequest(Join) returns (AllNetworkNodes) {}
+  rpc JoinToNode(Join) returns (JoinResponse) {}
+  rpc Ping(Address) returns (google.protobuf.Empty) {}
+  rpc NodeDiedInfo(NodeDied) returns (google.protobuf.Empty) {}
+}
+
+message Join {
+  Address address = 1;
+  string serverId = 2;
+}
+
+message JoinResponse {
+  string serverId = 1;
+}
+
+message AllNetworkNodes {
+  repeated Join nodesAddresses = 1;
+  string receiverServerId = 2;
+}
+
+message NodeDied {
+  Address address = 1;
+  string serverId = 2;
+}

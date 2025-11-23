@@ -1,0 +1,61 @@
+package controller;
+
+import model.NetworkAddress;
+import service.NodeService;
+import service.SharedMutexService;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+public class CLIController extends Controller {
+    private final BufferedReader consoleReader;
+    private boolean running = true;
+
+    public CLIController(NodeService nodeService, SharedMutexService sharedMutexService) {
+        super("Command-Line-Controller", nodeService, sharedMutexService);
+        consoleReader = new BufferedReader(new InputStreamReader(System.in));
+    }
+
+    @Override
+    public void run() {
+        // todo add address and port to the prompt
+        NetworkAddress address = nodeService.getNodeAddress();
+        String nodeName = nodeService.getNodeName();
+        String prompt = nodeName + " " + address.ipAddress() + ":" + address.port();
+        while (running) {
+            try {
+                System.out.printf("%s > ", prompt);
+                String command = consoleReader.readLine().trim();
+                executeCommand(command);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private void executeCommand(String command) {
+        if (command.equals("s")) {
+            System.out.println(nodeService.getNodeState());
+        } else if (command.equals("?")) {
+            // todo implement helping
+            System.out.println("IMPLEMENT HELP...");
+        } else if (command.equals("e")) {
+            sharedMutexService.requestCriticalSection();
+        } else if (command.equals("l")) {
+            sharedMutexService.leaveCriticalSection();
+        } else if (command.equals("r")) {
+            System.out.println(nodeService.getSharedVariable());
+        } else if(command.equals("ping")) {
+            nodeService.getOtherNodesMap().forEach((address, grpcClient) -> {
+                System.out.printf("Sending ping to %s\n", address);
+                grpcClient.ping();
+            });
+        } else if(command.equals("kill")) {
+            System.out.println("Killing node...");
+            System.exit(0);
+        }else if (!command.isEmpty()) {
+            System.out.printf("Unrecognized command:%s\n", command);
+        }
+    }
+}
