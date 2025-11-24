@@ -1,7 +1,7 @@
 package controller;
 
 import service.NodeService;
-import service.SharedMutexService;
+import service.sharedMutex.SharedMutexService;
 
 public abstract class Controller extends Thread {
     protected final NodeService nodeService;

@@ -1,8 +1,9 @@
 package controller;
 
 import io.javalin.Javalin;
+import model.NetworkAddress;
 import service.NodeService;
-import service.SharedMutexService;
+import service.sharedMutex.SharedMutexService;
 
 public class RESTController extends Controller {
     private Javalin app;
@@ -17,11 +18,18 @@ public class RESTController extends Controller {
                     // todo set the delay
                 })
                 .get("/join/{other_node_ip_address}/{other_node_port}", ctx -> {
-                    // join to the other node
+                    // join to the first node
+                    String ipAddress = ctx.pathParam("other_node_ip_address");
+                    int port = Integer.parseInt(ctx.pathParam("other_node_port"));
+                    nodeService.connectToFirstNode(new NetworkAddress(ipAddress, port));
                 })
                 .get("/leave", ctx -> {
                     // leave gratefully
                     ctx.result(String.format("Node %s leaving gratefully", nodeService.getNodeName()));
+                    // todo implement
+                })
+                .get("/revive", ctx -> {
+                    // todo implement
                 })
                 .get("/kill", ctx -> System.exit(0))
                 .get("/enterCS", ctx -> {

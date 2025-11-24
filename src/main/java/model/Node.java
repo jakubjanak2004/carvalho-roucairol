@@ -9,6 +9,7 @@ public class Node {
     private final UUID instanceID;
     private final String nodeName;
     private final NetworkAddress myNetworkAddress;
+    // todo remove myNeighbours and use only NodeService.otherNodesMap
     private final Set<NetworkAddress> myNeighbors = new HashSet<>();
 
     public Node(String nodeName, NetworkAddress myNetworkAddress) {
@@ -19,10 +20,6 @@ public class Node {
 
     public NetworkAddress getMyAddress() {
         return myNetworkAddress;
-    }
-
-    public Set<NetworkAddress> getMyNeighbors() {
-        return myNeighbors;
     }
 
     public int getSharedVariable() {
@@ -38,9 +35,7 @@ public class Node {
         StringBuilder sb = new StringBuilder();
         sb.append("{").append(nodeName).append(" ").append(myNetworkAddress);
         if (!myNeighbors.isEmpty()) sb.append(" other nodes:");
-        myNeighbors.forEach(neighbour -> {
-            sb.append("    ").append(neighbour).append("\n");
-        });
+        myNeighbors.forEach(neighbour -> sb.append("    ").append(neighbour).append("\n"));
         sb.append("}");
         return sb.toString();
     }

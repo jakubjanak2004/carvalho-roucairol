@@ -2,12 +2,11 @@ package main;
 
 import controller.CLIController;
 import controller.Controller;
-import controller.RESTController;
 import model.NetworkAddress;
 import model.Node;
 import service.GRPCServer;
 import service.NodeService;
-import service.SharedMutexService;
+import service.sharedMutex.SharedMutexService;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,9 +29,9 @@ public class Main {
         Node node = new Node(nodeName, networkAddress);
         // initialising services
         NodeService nodeService = new NodeService(node);
-        SharedMutexService sharedMutexService = new SharedMutexService();
+        SharedMutexService sharedMutexService = new SharedMutexService(nodeService.getOtherNodesMap(), nodeService);
         // initialising and starting gRPC server
-        GRPCServer grpcServer = new GRPCServer(node.getMyAddress().port(), nodeService);
+        GRPCServer grpcServer = new GRPCServer(node.getMyAddress().port(), nodeService, sharedMutexService);
         grpcServer.start();
         // initialising controllers
         controllerList.add(new CLIController(nodeService, sharedMutexService));

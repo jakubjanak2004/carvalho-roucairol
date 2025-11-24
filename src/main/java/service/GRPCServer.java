@@ -6,6 +6,7 @@ import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
 import model.NetworkAddress;
 import proto.common.Address;
+import proto.common.SharedVariableUpdate;
 import proto.connection.AllNetworkNodes;
 import proto.connection.Join;
 import proto.connection.JoinNetworkGrpc;
@@ -14,29 +15,30 @@ import proto.connection.NodeDied;
 import proto.sharedMutex.Reply;
 import proto.sharedMutex.Request;
 import proto.sharedMutex.SharedMutexGrpc;
-import proto.sharedMutex.SharedVariableUpdate;
+import service.sharedMutex.SharedMutexService;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-// todo add a time to server so that when deleting request commes we delete only the old non functional server
 public class GRPCServer {
     private static final Logger logger = Logger.getLogger(GRPCServer.class.getName());
     private Server server;
     private final int port;
     private final NodeService nodeService;
+    private final SharedMutexService sharedMutexService;
 
-    public GRPCServer(int port, NodeService nodeService) {
+    public GRPCServer(int port, NodeService nodeService, SharedMutexService sharedMutexService) {
         this.port = port;
         this.nodeService = nodeService;
+        this.sharedMutexService = sharedMutexService;
     }
 
     public void start() throws IOException {
         server  = ServerBuilder.forPort(port)
-                .addService(new JoinNetworkImpl(nodeService, this))
-                .addService(new SharedMutexImpl())
+                .addService(new JoinNetworkImpl(nodeService))
+                .addService(new SharedMutexImpl(nodeService, sharedMutexService))
                 .build()
                 .start();
         logger.info(String.format("gRPC Server started, listening on %d",  port));
@@ -55,16 +57,16 @@ public class GRPCServer {
         return new NetworkAddress(address.getIpAddress(), address.getPort());
     }
 
+    // todo relocate this, move it to a AddressUtils class with static methods
     public static String AddressToString(Address address) {
         return "{" + address.getIpAddress() + ":" + address.getPort() + "}";
     }
 
     static class JoinNetworkImpl extends JoinNetworkGrpc.JoinNetworkImplBase {
         private final NodeService nodeService;
-        private final GRPCServer grpcServer;
-        JoinNetworkImpl(NodeService nodeService, GRPCServer grpcServer) {
+
+        JoinNetworkImpl(NodeService nodeService) {
             this.nodeService = nodeService;
-            this.grpcServer = grpcServer;
         }
 
         @Override
@@ -74,7 +76,7 @@ public class GRPCServer {
             // compute the addresses
             List<Join> joinList = nodeService.getOtherNodesMap().entrySet().stream()
                             .map(entry -> Join.newBuilder()
-                                    .setServerId(entry.getValue().getInstanceHoldingId().toString())
+                                    .setServerId(entry.getValue().getGrpcClient().getInstanceHoldingId().toString())
                                     .setAddress(GRPCServer.networkAddressToAddress(entry.getKey()))
                                     .build()).toList();
 
@@ -82,6 +84,9 @@ public class GRPCServer {
                     AllNetworkNodes.newBuilder()
                             .addAllNodesAddresses(joinList)
                             .setReceiverServerId(nodeService.getInstanceId().toString())
+                            .setSharedVariableUpdate(SharedVariableUpdate.newBuilder()
+                                    .setNewValue(nodeService.getSharedVariable())
+                                    .build())
                             .build()
             );
             responseObserver.onCompleted();
@@ -111,13 +116,13 @@ public class GRPCServer {
         public void nodeDiedInfo(NodeDied request, StreamObserver<Empty> responseObserver) {
             NetworkAddress removedNodeNetworkAddress = GRPCServer.addressToNetworkAddress(request.getAddress());
             logger.info(String.format("Node with address %s died",  removedNodeNetworkAddress));
-            nodeService.getOtherNodesMap().computeIfPresent(removedNodeNetworkAddress ,(networkAddress, grpcClient) -> {
-                if (grpcClient.getInstanceHoldingId().equals(UUID.fromString(request.getServerId()))) {
+            nodeService.getOtherNodesMap().computeIfPresent(removedNodeNetworkAddress ,(networkAddress, otherNode) -> {
+                if (otherNode.getGrpcClient().getInstanceHoldingId().equals(UUID.fromString(request.getServerId()))) {
                     // remove the client if the ids match
                     return null;
                 }
                 // leave it there as the UUIDs don't match
-                return grpcClient;
+                return otherNode;
             });
             responseObserver.onNext(Empty.getDefaultInstance());
             responseObserver.onCompleted();
@@ -125,19 +130,36 @@ public class GRPCServer {
     }
 
     static class SharedMutexImpl extends SharedMutexGrpc.SharedMutexImplBase {
+        private final NodeService nodeService;
+        private final SharedMutexService sharedMutexService;
+
+        SharedMutexImpl(NodeService nodeService, SharedMutexService sharedMutexService) {
+            this.nodeService = nodeService;
+            this.sharedMutexService = sharedMutexService;
+        }
+
         @Override
         public void registerRequest(Request request, StreamObserver<Empty> responseObserver) {
-            // todo implement
+            logger.info(String.format("Received registerRequest from node with address %s", AddressToString(request.getAddress())));
+            sharedMutexService.registerRequest(request.getLamportClock(), GRPCServer.addressToNetworkAddress(request.getAddress()));
+            responseObserver.onNext(Empty.getDefaultInstance());
+            responseObserver.onCompleted();
         }
 
         @Override
         public void registerReply(Reply request, StreamObserver<Empty> responseObserver) {
-            // todo implement
+            logger.info(String.format("Received registerReply from node with address %s", AddressToString(request.getAddress())));
+            sharedMutexService.registerReply(GRPCServer.addressToNetworkAddress(request.getAddress()));
+            responseObserver.onNext(Empty.getDefaultInstance());
+            responseObserver.onCompleted();
         }
 
         @Override
         public void updateSharedVariable(SharedVariableUpdate request, StreamObserver<Empty> responseObserver) {
-            // todo implement
+            logger.info(String.format("Received updateSharedVariable with new value %s", request.getNewValue()));
+            nodeService.setSharedVariable(request.getNewValue());
+            responseObserver.onNext(Empty.getDefaultInstance());
+            responseObserver.onCompleted();
         }
     }
 }

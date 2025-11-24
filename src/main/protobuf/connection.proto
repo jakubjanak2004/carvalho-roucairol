@@ -26,6 +26,7 @@ message JoinResponse {
 message AllNetworkNodes {
   repeated Join nodesAddresses = 1;
   string receiverServerId = 2;
+  SharedVariableUpdate sharedVariableUpdate = 3;
 }
 
 message NodeDied {

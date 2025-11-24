@@ -15,12 +15,9 @@ service SharedMutex {
 
 message Request {
  Address address = 1;
+ int32 lamportClock = 2;
 }
 
 message Reply {
   Address address = 1;
-}
-
-message SharedVariableUpdate {
-  int32 newValue = 1;
 }

@@ -2,7 +2,7 @@ package controller;
 
 import model.NetworkAddress;
 import service.NodeService;
-import service.SharedMutexService;
+import service.sharedMutex.SharedMutexService;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 
 public class CLIController extends Controller {
     private final BufferedReader consoleReader;
+    // todo handle when to turn off the running
     private boolean running = true;
 
     public CLIController(NodeService nodeService, SharedMutexService sharedMutexService) {
@@ -19,7 +20,6 @@ public class CLIController extends Controller {
 
     @Override
     public void run() {
-        // todo add address and port to the prompt
         NetworkAddress address = nodeService.getNodeAddress();
         String nodeName = nodeService.getNodeName();
         String prompt = nodeName + " " + address.ipAddress() + ":" + address.port();
@@ -47,9 +47,9 @@ public class CLIController extends Controller {
         } else if (command.equals("r")) {
             System.out.println(nodeService.getSharedVariable());
         } else if(command.equals("ping")) {
-            nodeService.getOtherNodesMap().forEach((address, grpcClient) -> {
+            nodeService.getOtherNodesMap().forEach((address, otherNode) -> {
                 System.out.printf("Sending ping to %s\n", address);
-                grpcClient.ping();
+                otherNode.getGrpcClient().ping();
             });
         } else if(command.equals("kill")) {
             System.out.println("Killing node...");

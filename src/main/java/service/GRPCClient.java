@@ -5,11 +5,14 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
 import model.NetworkAddress;
 import proto.common.Address;
+import proto.common.SharedVariableUpdate;
 import proto.connection.AllNetworkNodes;
 import proto.connection.Join;
 import proto.connection.JoinNetworkGrpc;
 import proto.connection.JoinResponse;
 import proto.connection.NodeDied;
+import proto.sharedMutex.Reply;
+import proto.sharedMutex.Request;
 import proto.sharedMutex.SharedMutexGrpc;
 
 import java.util.UUID;
@@ -103,6 +106,7 @@ public class GRPCClient {
         channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
 
+    // todo add shaed variable info when connecting for the first time
     private void joinWithNodesRequest(Join joinRequest) {
         logger.info(String.format("Sending joinWithNodesRequest to node: %s", serverNetworkAddress));
         try {
@@ -110,6 +114,7 @@ public class GRPCClient {
                     .withDeadlineAfter(5, TimeUnit.SECONDS)
                     .joinWithNodesRequest(joinRequest);
             instanceHoldingId = UUID.fromString(allNetworkNodes.getReceiverServerId());
+            nodeService.setSharedVariable(allNetworkNodes.getSharedVariableUpdate().getNewValue());
             logger.info(String.format("Successfully joined to network: %s", allNetworkNodes));
             for (Join join : allNetworkNodes.getNodesAddressesList()) {
                 Address address = join.getAddress();
@@ -130,12 +135,58 @@ public class GRPCClient {
             instanceHoldingId = UUID.fromString(joinResponse.getServerId());
             logger.info(String.format("Successfully joined to node: %s", serverNetworkAddress));
         } catch (StatusRuntimeException e) {
-            logger.warning(String.format("JoinTpNetwork to node %s failed", serverNetworkAddress));
+            logger.warning(String.format("JoinToNetwork to node %s failed", serverNetworkAddress));
             nodeService.nodeDied(serverNetworkAddress, instanceHoldingId);
         }
     }
 
     public UUID getInstanceHoldingId() {
         return instanceHoldingId;
+    }
+
+    public void sendRequest(int lamportClock) {
+        logger.info(String.format("Sending sendRequest to node: %s", serverNetworkAddress));
+        Request request = Request.newBuilder()
+                .setLamportClock(lamportClock)
+                .setAddress(GRPCServer.networkAddressToAddress(nodeService.getNodeAddress()))
+                .build();
+        try {
+            sharedMutexBlockingStub
+                    .withDeadlineAfter(5, TimeUnit.SECONDS)
+                    .registerRequest(request);
+        } catch (StatusRuntimeException e) {
+            logger.warning(String.format("sendRequest to node %s failed", serverNetworkAddress));
+            nodeService.nodeDied(serverNetworkAddress, instanceHoldingId);
+        }
+    }
+
+    public void sendReply() {
+        logger.info(String.format("Sending sendReply to node: %s", serverNetworkAddress));
+        Reply reply = Reply.newBuilder()
+                .setAddress(GRPCServer.networkAddressToAddress(nodeService.getNodeAddress()))
+                .build();
+        try {
+            sharedMutexBlockingStub
+                    .withDeadlineAfter(5, TimeUnit.SECONDS)
+                    .registerReply(reply);
+        } catch (StatusRuntimeException e) {
+            logger.warning(String.format("sendReply to node %s failed", serverNetworkAddress));
+            nodeService.nodeDied(serverNetworkAddress, instanceHoldingId);
+        }
+    }
+
+    public void updateSharedVariable(int sharedVariable) {
+        logger.info(String.format("Sending updateSharedVariable to node: %s", serverNetworkAddress));
+        SharedVariableUpdate sharedVariableUpdate = SharedVariableUpdate.newBuilder()
+                .setNewValue(sharedVariable)
+                .build();
+        try {
+            sharedMutexBlockingStub
+                    .withDeadlineAfter(5, TimeUnit.SECONDS)
+                    .updateSharedVariable(sharedVariableUpdate);
+        } catch (StatusRuntimeException e) {
+            logger.warning(String.format("updateSharedVariable to node %s failed", serverNetworkAddress));
+            nodeService.nodeDied(serverNetworkAddress, instanceHoldingId);
+        }
     }
 }
