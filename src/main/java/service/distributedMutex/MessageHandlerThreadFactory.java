@@ -1,4 +1,4 @@
-package service.sharedMutex;
+package service.distributedMutex;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;

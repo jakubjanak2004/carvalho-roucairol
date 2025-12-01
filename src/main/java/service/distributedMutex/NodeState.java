@@ -1,3 +1,3 @@
-package service.sharedMutex;
+package service.distributedMutex;
 
 public enum NodeState {IDLE, REQUESTING, HOLDING}

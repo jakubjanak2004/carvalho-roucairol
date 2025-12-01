@@ -1,16 +1,15 @@
 package model;
 
-import java.util.HashSet;
-import java.util.Set;
+import service.NodeService;
+
 import java.util.UUID;
 
 public class Node {
-    private int sharedVariable = 0;
     private final UUID instanceID;
     private final String nodeName;
     private final NetworkAddress myNetworkAddress;
-    // todo remove myNeighbours and use only NodeService.otherNodesMap
-    private final Set<NetworkAddress> myNeighbors = new HashSet<>();
+    private NodeService nodeService;
+    private int sharedVariable = 0;
 
     public Node(String nodeName, NetworkAddress myNetworkAddress) {
         this.instanceID = UUID.randomUUID();
@@ -34,8 +33,10 @@ public class Node {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("{").append(nodeName).append(" ").append(myNetworkAddress);
-        if (!myNeighbors.isEmpty()) sb.append(" other nodes:");
-        myNeighbors.forEach(neighbour -> sb.append("    ").append(neighbour).append("\n"));
+        if (nodeService != null) {
+            if (!nodeService.getOtherNodesMap().isEmpty()) sb.append(" other nodes:");
+            nodeService.getOtherNodesMap().forEach((networkAddress, otherNode) -> sb.append("    ").append(networkAddress).append("\n"));
+        }
         sb.append("}");
         return sb.toString();
     }
@@ -46,5 +47,9 @@ public class Node {
 
     public UUID getInstanceID() {
         return instanceID;
+    }
+
+    public void setNodeService(NodeService nodeService) {
+        this.nodeService = nodeService;
     }
 }

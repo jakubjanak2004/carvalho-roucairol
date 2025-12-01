@@ -3,12 +3,12 @@ package controller;
 import io.javalin.Javalin;
 import model.NetworkAddress;
 import service.NodeService;
-import service.sharedMutex.SharedMutexService;
+import service.distributedMutex.DistributedMutexService;
 
 public class RESTController extends Controller {
     private Javalin app;
-    public RESTController(NodeService nodeService, SharedMutexService sharedMutexService) {
-        super("REST-Controller", nodeService, sharedMutexService);
+    public RESTController(NodeService nodeService, DistributedMutexService distributedMutexService) {
+        super("REST-Controller", nodeService, distributedMutexService);
     }
 
     @Override
@@ -34,11 +34,11 @@ public class RESTController extends Controller {
                 .get("/kill", ctx -> System.exit(0))
                 .get("/enterCS", ctx -> {
                     ctx.result(String.format("Entering CS on node %s", nodeService.getNodeName()));
-                    sharedMutexService.requestCriticalSection();
+                    distributedMutexService.requestCriticalSection();
                 })
                 .get("/leaveCS", ctx -> {
                     ctx.result(String.format("Leaving CS on node %s", nodeService.getNodeName()));
-                    sharedMutexService.leaveCriticalSection();
+                    distributedMutexService.leaveCriticalSection();
                 })
                 .get("/readCS", ctx -> {
                      int sharedVariable = nodeService.getSharedVariable();

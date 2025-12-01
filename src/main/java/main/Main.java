@@ -2,11 +2,12 @@ package main;
 
 import controller.CLIController;
 import controller.Controller;
+import controller.RESTController;
 import model.NetworkAddress;
 import model.Node;
 import service.GRPCServer;
 import service.NodeService;
-import service.sharedMutex.SharedMutexService;
+import service.distributedMutex.DistributedMutexService;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,17 +30,15 @@ public class Main {
         Node node = new Node(nodeName, networkAddress);
         // initialising services
         NodeService nodeService = new NodeService(node);
-        SharedMutexService sharedMutexService = new SharedMutexService(nodeService.getOtherNodesMap(), nodeService);
+        DistributedMutexService distributedMutexService = new DistributedMutexService(nodeService.getOtherNodesMap(), nodeService);
         // initialising and starting gRPC server
-        GRPCServer grpcServer = new GRPCServer(node.getMyAddress().port(), nodeService, sharedMutexService);
+        GRPCServer grpcServer = new GRPCServer(node.getMyAddress().port(), nodeService, distributedMutexService);
         grpcServer.start();
         // initialising controllers
-        controllerList.add(new CLIController(nodeService, sharedMutexService));
-//        controllerList.add(new RESTController(nodeService, sharedMutexService));
+        controllerList.add(new CLIController(nodeService, distributedMutexService));
+        controllerList.add(new RESTController(nodeService, distributedMutexService));
         controllerList.forEach(Thread::start);
         if (args.length == 5) {
-            // todo set the other node address
-            // todo create client and connect to the provided node, then handle other nodes connections
             String otherNodeIpAddress = args[3];
             int otherNodePort = Integer.parseInt(args[4]);
             nodeService.connectToFirstNode(new NetworkAddress(otherNodeIpAddress, otherNodePort));

@@ -2,7 +2,7 @@ package controller;
 
 import model.NetworkAddress;
 import service.NodeService;
-import service.sharedMutex.SharedMutexService;
+import service.distributedMutex.DistributedMutexService;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,8 +14,8 @@ public class CLIController extends Controller {
     // todo handle when to turn off the running
     private boolean running = true;
 
-    public CLIController(NodeService nodeService, SharedMutexService sharedMutexService) {
-        super("Command-Line-Controller", nodeService, sharedMutexService);
+    public CLIController(NodeService nodeService, DistributedMutexService distributedMutexService) {
+        super("Command-Line-Controller", nodeService, distributedMutexService);
         consoleReader = new BufferedReader(new InputStreamReader(System.in));
     }
 
@@ -43,13 +43,13 @@ public class CLIController extends Controller {
             System.out.println("IMPLEMENT HELP...");
         } else if (command.equals("e")) {
             try {
-                sharedMutexService.requestCriticalSection();
+                distributedMutexService.requestCriticalSection();
             } catch (RejectedExecutionException e) {
                 System.err.println("Request critical section was Rejected.");
             }
         } else if (command.equals("l")) {
             try {
-                sharedMutexService.leaveCriticalSection();
+                distributedMutexService.leaveCriticalSection();
             } catch (RejectedExecutionException e) {
                 System.err.println("Leave critical section was Rejected.");
             }

@@ -13,6 +13,7 @@ public class NodeService {
 
     public NodeService(Node node) {
         this.node = node;
+        node.setNodeService(this);
     }
 
 

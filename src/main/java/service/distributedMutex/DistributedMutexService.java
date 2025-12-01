@@ -1,4 +1,4 @@
-package service.sharedMutex;
+package service.distributedMutex;
 
 import model.NetworkAddress;
 import model.OtherNode;
@@ -20,8 +20,8 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class SharedMutexService {
-    private static final Logger logger = LoggerFactory.getLogger(SharedMutexService.class.getName());
+public class DistributedMutexService {
+    private static final Logger logger = LoggerFactory.getLogger(DistributedMutexService.class.getName());
     private final Lock lock = new ReentrantLock();
     private final Condition condition = lock.newCondition();
 
@@ -52,7 +52,7 @@ public class SharedMutexService {
     private final NetworkAddress nodeNetworkAddress;
     private final NodeService nodeService;
 
-    public SharedMutexService(ConcurrentHashMap<NetworkAddress, OtherNode> otherNodesMap, NodeService nodeService) {
+    public DistributedMutexService(ConcurrentHashMap<NetworkAddress, OtherNode> otherNodesMap, NodeService nodeService) {
         this.otherNodesMap = otherNodesMap;
         this.nodeNetworkAddress = nodeService.getNodeAddress();
         this.nodeService = nodeService;

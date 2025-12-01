@@ -17,7 +17,7 @@ import proto.connection.NodeDied;
 import proto.sharedMutex.Reply;
 import proto.sharedMutex.Request;
 import proto.sharedMutex.SharedMutexGrpc;
-import service.sharedMutex.SharedMutexService;
+import service.distributedMutex.DistributedMutexService;
 
 import java.io.IOException;
 import java.util.List;
@@ -28,18 +28,18 @@ public class GRPCServer {
     private Server server;
     private final int port;
     private final NodeService nodeService;
-    private final SharedMutexService sharedMutexService;
+    private final DistributedMutexService distributedMutexService;
 
-    public GRPCServer(int port, NodeService nodeService, SharedMutexService sharedMutexService) {
+    public GRPCServer(int port, NodeService nodeService, DistributedMutexService distributedMutexService) {
         this.port = port;
         this.nodeService = nodeService;
-        this.sharedMutexService = sharedMutexService;
+        this.distributedMutexService = distributedMutexService;
     }
 
     public void start() throws IOException {
         server  = ServerBuilder.forPort(port)
                 .addService(new JoinNetworkImpl(nodeService))
-                .addService(new SharedMutexImpl(nodeService, sharedMutexService))
+                .addService(new SharedMutexImpl(nodeService, distributedMutexService))
                 .build()
                 .start();
         logger.info("gRPC Server started, listening on {}",  port);
@@ -132,17 +132,17 @@ public class GRPCServer {
 
     static class SharedMutexImpl extends SharedMutexGrpc.SharedMutexImplBase {
         private final NodeService nodeService;
-        private final SharedMutexService sharedMutexService;
+        private final DistributedMutexService distributedMutexService;
 
-        SharedMutexImpl(NodeService nodeService, SharedMutexService sharedMutexService) {
+        SharedMutexImpl(NodeService nodeService, DistributedMutexService distributedMutexService) {
             this.nodeService = nodeService;
-            this.sharedMutexService = sharedMutexService;
+            this.distributedMutexService = distributedMutexService;
         }
 
         @Override
         public void registerRequest(Request request, StreamObserver<Empty> responseObserver) {
             logger.info("Received registerRequest from node with address {}", AddressToString(request.getAddress()));
-            sharedMutexService.registerRequest(request.getLamportClock(), GRPCServer.addressToNetworkAddress(request.getAddress()));
+            distributedMutexService.registerRequest(request.getLamportClock(), GRPCServer.addressToNetworkAddress(request.getAddress()));
             responseObserver.onNext(Empty.getDefaultInstance());
             responseObserver.onCompleted();
         }
@@ -150,7 +150,7 @@ public class GRPCServer {
         @Override
         public void registerReply(Reply request, StreamObserver<Empty> responseObserver) {
             logger.info("Received registerReply from node with address {}", AddressToString(request.getAddress()));
-            sharedMutexService.registerReply(GRPCServer.addressToNetworkAddress(request.getAddress()));
+            distributedMutexService.registerReply(GRPCServer.addressToNetworkAddress(request.getAddress()));
             responseObserver.onNext(Empty.getDefaultInstance());
             responseObserver.onCompleted();
         }
