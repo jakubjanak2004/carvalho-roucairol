@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36" version="29.1.1" pages="4">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36" version="29.2.1" pages="3">
   <diagram id="C5RBs43oDa-KdzZeNtuy" name="Component Diagram">
-    <mxGraphModel dx="1548" dy="969" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" background="none" math="0" shadow="0">
+    <mxGraphModel dx="1873" dy="1230" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" background="none" math="0" shadow="0">
       <root>
         <mxCell id="WIyWlLk6GJQsqaUBKTNV-0" />
         <mxCell id="WIyWlLk6GJQsqaUBKTNV-1" parent="WIyWlLk6GJQsqaUBKTNV-0" />
@@ -310,29 +310,21 @@
       </root>
     </mxGraphModel>
   </diagram>
-  <diagram id="VFijke1hk_1LdmNnzABA" name="GRPC Protobuf">
-    <mxGraphModel dx="1473" dy="830" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
-      <root>
-        <mxCell id="0" />
-        <mxCell id="1" parent="0" />
-      </root>
-    </mxGraphModel>
-  </diagram>
-  <diagram id="P0r38Uh_j45gidNjtfP1" name="GRPC Messages">
-    <mxGraphModel dx="2223" dy="1438" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+  <diagram id="P0r38Uh_j45gidNjtfP1" name="GRPC Procedures">
+    <mxGraphModel dx="1925" dy="2475" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="vZwo5B36cLIYqBIbjcZY-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="&lt;b&gt;JoinWithNodesRequest&lt;/b&gt;&amp;nbsp;- this node connects to a node that already is connected and receives an array of Addresses back" vertex="1">
           <mxGeometry height="155" width="318" x="-284" y="-150" as="geometry" />
         </mxCell>
-        <mxCell id="zYurjvOiYXfkAlyKmhJN-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="&lt;b&gt;Request&lt;/b&gt;&amp;nbsp;- this node requests critical section access from other nodes, nothing is returned" vertex="1">
+        <mxCell id="zYurjvOiYXfkAlyKmhJN-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="&lt;b&gt;RegisterRequest&lt;/b&gt;&amp;nbsp;- this node requests critical section access from other nodes, nothing is returned" vertex="1">
           <mxGeometry height="155" width="318" x="321" y="-150" as="geometry" />
         </mxCell>
-        <mxCell id="zYurjvOiYXfkAlyKmhJN-2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="&lt;b&gt;Reply&lt;/b&gt; - this node replies to a critical section request, nothing is returned" vertex="1">
+        <mxCell id="zYurjvOiYXfkAlyKmhJN-2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="&lt;b&gt;RegisterReply&lt;/b&gt; - this node replies to a critical section request, nothing is returned" vertex="1">
           <mxGeometry height="155" width="318" x="720" y="-150" as="geometry" />
         </mxCell>
-        <mxCell id="zYurjvOiYXfkAlyKmhJN-3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="&lt;b&gt;SharedVariableUpdated&amp;nbsp;&lt;/b&gt;- ..." vertex="1">
+        <mxCell id="zYurjvOiYXfkAlyKmhJN-3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="&lt;b&gt;SharedVariableUpdated&amp;nbsp;&lt;/b&gt;- this node changed the shared variable and notifies other of the new value" vertex="1">
           <mxGeometry height="155" width="318" x="321" y="73" as="geometry" />
         </mxCell>
         <mxCell id="MQHY-g0-rrSzYWLHn6Dg-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="&lt;b&gt;JoinToNode&lt;/b&gt;&amp;nbsp;- connect to a specific node, no addresses back" vertex="1">
@@ -341,7 +333,7 @@
         <mxCell id="MQHY-g0-rrSzYWLHn6Dg-2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="&lt;b&gt;Ping&lt;/b&gt;&amp;nbsp;- send ping to all other nodes, for testing" vertex="1">
           <mxGeometry height="155" width="318" x="-284" y="290" as="geometry" />
         </mxCell>
-        <mxCell id="MQHY-g0-rrSzYWLHn6Dg-3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="&lt;b&gt;NodeDiedInfo&lt;/b&gt;&amp;nbsp;-&amp;nbsp;" vertex="1">
+        <mxCell id="MQHY-g0-rrSzYWLHn6Dg-3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="&lt;b&gt;NodeDiedInfo&lt;/b&gt;&amp;nbsp;- notifying other nodes that a node died" vertex="1">
           <mxGeometry height="155" width="318" x="-284" y="510" as="geometry" />
         </mxCell>
       </root>
