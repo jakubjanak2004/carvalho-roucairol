@@ -5,6 +5,8 @@ import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
 import model.NetworkAddress;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import proto.common.Address;
 import proto.common.SharedVariableUpdate;
 import proto.connection.AllNetworkNodes;
@@ -20,10 +22,9 @@ import service.sharedMutex.SharedMutexService;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 public class GRPCServer {
-    private static final Logger logger = Logger.getLogger(GRPCServer.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(GRPCServer.class.getName());
     private Server server;
     private final int port;
     private final NodeService nodeService;
@@ -41,7 +42,7 @@ public class GRPCServer {
                 .addService(new SharedMutexImpl(nodeService, sharedMutexService))
                 .build()
                 .start();
-        logger.info(String.format("gRPC Server started, listening on %d",  port));
+        logger.info("gRPC Server started, listening on {}",  port);
     }
 
     // todo think about moving this
@@ -71,7 +72,7 @@ public class GRPCServer {
 
         @Override
         public void joinWithNodesRequest(Join request, StreamObserver<AllNetworkNodes> responseObserver) {
-            logger.info(String.format("Node with address %s trying to join network", AddressToString(request.getAddress())));
+            logger.info("Node with address {} trying to join network", AddressToString(request.getAddress()));
 
             // compute the addresses
             List<Join> joinList = nodeService.getOtherNodesMap().entrySet().stream()
@@ -97,7 +98,7 @@ public class GRPCServer {
 
         @Override
         public void joinToNode(Join request, StreamObserver<JoinResponse> responseObserver) {
-            logger.info(String.format("Node with address %s trying to join", AddressToString(request.getAddress())));
+            logger.info("Node with address {} trying to join", AddressToString(request.getAddress()));
             responseObserver.onNext(JoinResponse.newBuilder().setServerId(nodeService.getInstanceId().toString()).build());
             responseObserver.onCompleted();
             if (!nodeService.getOtherNodesMap().containsKey(addressToNetworkAddress(request.getAddress()))) {
@@ -107,7 +108,7 @@ public class GRPCServer {
 
         @Override
         public void ping(Address request, StreamObserver<Empty> responseObserver) {
-            logger.info(String.format("Node with address %s trying to ping", AddressToString(request)));
+            logger.info("Node with address {} trying to ping", AddressToString(request));
             responseObserver.onNext(Empty.getDefaultInstance());
             responseObserver.onCompleted();
         }
@@ -115,7 +116,7 @@ public class GRPCServer {
         @Override
         public void nodeDiedInfo(NodeDied request, StreamObserver<Empty> responseObserver) {
             NetworkAddress removedNodeNetworkAddress = GRPCServer.addressToNetworkAddress(request.getAddress());
-            logger.info(String.format("Node with address %s died",  removedNodeNetworkAddress));
+            logger.info("Node with address {} died",  removedNodeNetworkAddress);
             nodeService.getOtherNodesMap().computeIfPresent(removedNodeNetworkAddress ,(networkAddress, otherNode) -> {
                 if (otherNode.getGrpcClient().getInstanceHoldingId().equals(UUID.fromString(request.getServerId()))) {
                     // remove the client if the ids match
@@ -140,7 +141,7 @@ public class GRPCServer {
 
         @Override
         public void registerRequest(Request request, StreamObserver<Empty> responseObserver) {
-            logger.info(String.format("Received registerRequest from node with address %s", AddressToString(request.getAddress())));
+            logger.info("Received registerRequest from node with address {}", AddressToString(request.getAddress()));
             sharedMutexService.registerRequest(request.getLamportClock(), GRPCServer.addressToNetworkAddress(request.getAddress()));
             responseObserver.onNext(Empty.getDefaultInstance());
             responseObserver.onCompleted();
@@ -148,7 +149,7 @@ public class GRPCServer {
 
         @Override
         public void registerReply(Reply request, StreamObserver<Empty> responseObserver) {
-            logger.info(String.format("Received registerReply from node with address %s", AddressToString(request.getAddress())));
+            logger.info("Received registerReply from node with address {}", AddressToString(request.getAddress()));
             sharedMutexService.registerReply(GRPCServer.addressToNetworkAddress(request.getAddress()));
             responseObserver.onNext(Empty.getDefaultInstance());
             responseObserver.onCompleted();
@@ -156,7 +157,7 @@ public class GRPCServer {
 
         @Override
         public void updateSharedVariable(SharedVariableUpdate request, StreamObserver<Empty> responseObserver) {
-            logger.info(String.format("Received updateSharedVariable with new value %s", request.getNewValue()));
+            logger.info("Received updateSharedVariable with new value {}", request.getNewValue());
             nodeService.setSharedVariable(request.getNewValue());
             responseObserver.onNext(Empty.getDefaultInstance());
             responseObserver.onCompleted();

@@ -7,6 +7,7 @@ import service.sharedMutex.SharedMutexService;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.concurrent.RejectedExecutionException;
 
 public class CLIController extends Controller {
     private final BufferedReader consoleReader;
@@ -41,9 +42,17 @@ public class CLIController extends Controller {
             // todo implement helping
             System.out.println("IMPLEMENT HELP...");
         } else if (command.equals("e")) {
-            sharedMutexService.requestCriticalSection();
+            try {
+                sharedMutexService.requestCriticalSection();
+            } catch (RejectedExecutionException e) {
+                System.err.println("Request critical section was Rejected.");
+            }
         } else if (command.equals("l")) {
-            sharedMutexService.leaveCriticalSection();
+            try {
+                sharedMutexService.leaveCriticalSection();
+            } catch (RejectedExecutionException e) {
+                System.err.println("Leave critical section was Rejected.");
+            }
         } else if (command.equals("r")) {
             System.out.println(nodeService.getSharedVariable());
         } else if(command.equals("ping")) {
