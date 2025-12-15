@@ -8,5 +8,4 @@ for ID in $(seq 1 "${NUM_NODES}") ; do
 
   sshpass -p "${DSV_PASS}" ssh -o StrictHostKeyChecking=no "${REMOTE_USER}@${NODE}" -- \
     "tmux has-session -t '${SESSION}' 2>/dev/null && tmux send-keys -t '${SESSION}' kill Enter || true"
-#    "tmux kill-session -t '${SESSION}' 2>/dev/null || true"
 done
