@@ -35,11 +35,20 @@ for ID in $(seq 1 "${NUM_NODES}") ; do
   sshpass -p "${DSV_PASS}" scp -o StrictHostKeyChecking=no "${LOCAL_JAR}" \
     "${REMOTE_USER}@${NODE}:${REMOTE_NODE_DIR}/${FAT_JAR}"
 
+  # create tmux session only if it doesn't exist
   sshpass -p "${DSV_PASS}" ssh -o StrictHostKeyChecking=no "${REMOTE_USER}@${NODE}" -- \
-    "tmux kill-session -t '${SESSION}' 2>/dev/null || true; tmux new-session -d -s '${SESSION}'"
+    "tmux has-session -t '${SESSION}' 2>/dev/null || tmux new-session -d -s '${SESSION}'"
 
+  # start jar only if not already running in that session
   sshpass -p "${DSV_PASS}" ssh -o StrictHostKeyChecking=no "${REMOTE_USER}@${NODE}" -- \
-    "tmux send -t '${SESSION}' 'cd \"${REMOTE_NODE_DIR}\" && java -jar \"${FAT_JAR}\"' ENTER"
+    "tmux capture-pane -pt '${SESSION}' -S -200 | grep -q 'java -jar ${FAT_JAR}' || \
+     tmux send -t '${SESSION}' 'cd \"${REMOTE_NODE_DIR}\" && java -jar \"${FAT_JAR}\"' ENTER"
+
+#  sshpass -p "${DSV_PASS}" ssh -o StrictHostKeyChecking=no "${REMOTE_USER}@${NODE}" -- \
+#    "tmux kill-session -t '${SESSION}' 2>/dev/null || true; tmux new-session -d -s '${SESSION}'"
+#
+#  sshpass -p "${DSV_PASS}" ssh -o StrictHostKeyChecking=no "${REMOTE_USER}@${NODE}" -- \
+#    "tmux send -t '${SESSION}' 'cd \"${REMOTE_NODE_DIR}\" && java -jar \"${FAT_JAR}\"' ENTER"
 done
 
 
