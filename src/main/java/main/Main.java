@@ -12,6 +12,7 @@ import service.distributedMutex.DistributedMutexService;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Main {
     private static final List<Controller> controllerList = new ArrayList<>();
@@ -40,8 +41,10 @@ public class Main {
         controllerList.forEach(Thread::start);
         if (args.length == 5) {
             String otherNodeIpAddress = args[3];
-            int otherNodePort = Integer.parseInt(args[4]);
-            nodeService.connectToFirstNode(new NetworkAddress(otherNodeIpAddress, otherNodePort));
+            Integer otherNodePort = Integer.parseInt(args[4]);
+            if (!Objects.equals(otherNodeIpAddress, ipAddress) && !Objects.equals(otherNodePort, port)) {
+                nodeService.connectToFirstNode(new NetworkAddress(otherNodeIpAddress, otherNodePort));
+            }
         }
     }
 }
