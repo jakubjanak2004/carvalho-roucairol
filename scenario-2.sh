@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
 source ./procedures.sh
 
 # one instance enters the critical state first
