@@ -41,7 +41,7 @@ send_to_all "l"
 # Now: kill from the end (5,4,3,...) and after each kill:
 #  - send e to all except last k nodes
 #  - send l to node k
-for ((k=1; k<=NUM_NODES-2; k++)); do
+for ((k=1; k<=NUM_NODES-1; k++)); do
   kill_id=$((NUM_NODES - (k-1)))   # 5,4,3,...
 
   send_to_one "$kill_id" "kill"
