@@ -40,16 +40,9 @@ for ID in $(seq 1 "${NUM_NODES}") ; do
     "tmux has-session -t '${SESSION}' 2>/dev/null || tmux new-session -d -s '${SESSION}'"
 
   # start jar only if not already running in that session
-  # start jar only if not already running in that session
   sshpass -p "${DSV_PASS}" ssh -o StrictHostKeyChecking=no "${REMOTE_USER}@${NODE}" -- \
     "tmux capture-pane -pt '${SESSION}' -S -200 | grep -q '${FAT_JAR} NODE_${ID}' || \
      tmux send -t '${SESSION}' 'cd \"${REMOTE_NODE_DIR}\" && java -jar \"${FAT_JAR}\" NODE_${ID} ${NODE} ${NODE_PORT[$ID]} 192.168.1.100 2000' ENTER"
 
     sleep 5
-
-#  sshpass -p "${DSV_PASS}" ssh -o StrictHostKeyChecking=no "${REMOTE_USER}@${NODE}" -- \
-#    "tmux kill-session -t '${SESSION}' 2>/dev/null || true; tmux new-session -d -s '${SESSION}'"
-#
-#  sshpass -p "${DSV_PASS}" ssh -o StrictHostKeyChecking=no "${REMOTE_USER}@${NODE}" -- \
-#    "tmux send -t '${SESSION}' 'cd \"${REMOTE_NODE_DIR}\" && java -jar \"${FAT_JAR}\"' ENTER"
 done
