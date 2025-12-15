@@ -9,10 +9,16 @@ GIT_URL="git@github.com:jakubjanak2004/carvalho-roucairol.git"
 GIT_BRANCH="master"
 
 # Nodes
-NUM_NODES=2
+NUM_NODES=3
 declare -a NODE_IP
 NODE_IP[1]="192.168.1.101"
-NODE_IP[2]="192.168.1.102"
+NODE_IP[2]="192.168.1.101"
+NODE_IP[3]="192.168.1.102"
+
+declare -a NODE_PORT
+NODE_PORT[1]="2000"
+NODE_PORT[2]="2000"
+NODE_PORT[3]="2000"
 
 # SSH login (CTU lab often uses dsv/dsv, your case is dsva)
 REMOTE_USER="dsva"
