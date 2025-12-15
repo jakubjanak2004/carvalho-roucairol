@@ -41,7 +41,7 @@ public class Main {
         controllerList.forEach(Thread::start);
         if (args.length == 5) {
             String otherNodeIpAddress = args[3];
-            Integer otherNodePort = Integer.parseInt(args[4]);
+            int otherNodePort = Integer.parseInt(args[4]);
             if (!Objects.equals(otherNodeIpAddress, ipAddress) || !Objects.equals(otherNodePort, port)) {
                 nodeService.connectToFirstNode(new NetworkAddress(otherNodeIpAddress, otherNodePort));
             }
