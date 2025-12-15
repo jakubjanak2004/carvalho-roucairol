@@ -4,8 +4,6 @@
 SEMWORK_HOMEDIR="/home"
 CODE_SUBDIR="carvalho-roucairol"
 
-git@github.com:jakubjanak2004/carvalho-roucairol.git
-
 # Git
 GIT_URL="git@github.com:jakubjanak2004/carvalho-roucairol.git"
 GIT_BRANCH="master"
