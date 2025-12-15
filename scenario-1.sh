@@ -31,6 +31,16 @@ send_to_all() {
   done
 }
 
+restart_node_from_tmux_history() {
+  local ID="$1"
+  local NODE="${NODE_IP[$ID]}"
+  local SESSION="${SESSION_PREFIX}_${ID}"
+
+  echo "[NODE_${ID} @ ${NODE}] restart via Up+Enter in tmux '${SESSION}'"
+  sshpass -p "${DSV_PASS}" ssh -o StrictHostKeyChecking=no "${REMOTE_USER}@${NODE}" -- \
+    "tmux has-session -t '${SESSION}' 2>/dev/null && tmux send-keys -t '${SESSION}' Up Enter || true"
+}
+
 # 1) send e everywhere
 send_to_all "e"
 sleep 1
@@ -51,4 +61,16 @@ for ((k=1; k<=NUM_NODES-1; k++)); do
   sleep 1
 
   send_to_all "l" "$k"
+done
+
+# start the node and then send e and l to all the alive nodes
+# start the node and then send e and l to all the alive nodes (1..id)
+for ((id=2; id<=NUM_NODES; id++)); do
+  restart_node_from_tmux_history "$id"
+  sleep 1
+
+  skip_last=$((NUM_NODES - id))   # alive are 1..id
+  send_to_all "e" "$skip_last"
+  sleep 1
+  send_to_all "l" "$skip_last"
 done
