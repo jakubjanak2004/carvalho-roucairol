@@ -1,3 +1,5 @@
+source ./bash_variables.sh
+
 send_to_one() {
   local ID="$1"
   local key="$2"
