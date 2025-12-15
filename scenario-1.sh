@@ -67,7 +67,7 @@ done
 # start the node and then send e and l to all the alive nodes (1..id)
 for ((id=2; id<=NUM_NODES; id++)); do
   restart_node_from_tmux_history "$id"
-  sleep 1
+  sleep 2
 
   skip_last=$((NUM_NODES - id))   # alive are 1..id
   send_to_all "e" "$skip_last"

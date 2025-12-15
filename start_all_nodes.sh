@@ -44,5 +44,5 @@ for ID in $(seq 1 "${NUM_NODES}") ; do
     "tmux capture-pane -pt '${SESSION}' -S -200 | grep -q '${FAT_JAR} NODE_${ID}' || \
      tmux send -t '${SESSION}' 'cd \"${REMOTE_NODE_DIR}\" && java -jar \"${FAT_JAR}\" NODE_${ID} ${NODE} ${NODE_PORT[$ID]} ${NODE_IP[1]} ${NODE_PORT[1]}' ENTER"
 
-    sleep 5
+    sleep 0
 done
