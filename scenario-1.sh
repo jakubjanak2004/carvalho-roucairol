@@ -50,5 +50,5 @@ for ((k=1; k<=NUM_NODES-1; k++)); do
   send_to_all "e" "$k"             # skip last k
   sleep 1
 
-  send_to_one "$k" "l"
+  send_to_all "l" "$k"
 done
