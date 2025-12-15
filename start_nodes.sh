@@ -8,7 +8,7 @@ REMOTE_USER=dsva
 REMOTE_DIR=/opt/semestralka
 
 # recompile the .jar
-mvn clean compile
+mvn clean package
 
 REMOTE_USER="${REMOTE_USER:-$USER}"       # override: REMOTE_USER=jakub ./deploy.sh
 REMOTE_DIR="${REMOTE_DIR:-~/semestralka}"
