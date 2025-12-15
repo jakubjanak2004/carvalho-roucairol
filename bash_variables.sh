@@ -16,9 +16,9 @@ NODE_IP[2]="192.168.1.101"
 NODE_IP[3]="192.168.1.102"
 
 declare -a NODE_PORT
-NODE_PORT[1]="2000"
-NODE_PORT[2]="2000"
-NODE_PORT[3]="2000"
+NODE_PORT[1]="12345"
+NODE_PORT[2]="12345"
+NODE_PORT[3]="12345"
 
 # SSH login (CTU lab often uses dsv/dsv, your case is dsva)
 REMOTE_USER="dsva"
