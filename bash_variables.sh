@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Where everything lives on local + remote machines
-SEMWORK_HOMEDIR="/home"
+SEMWORK_HOMEDIR="/home/dsva/Desktop"
 CODE_SUBDIR="carvalho-roucairol"
 
 # Git
