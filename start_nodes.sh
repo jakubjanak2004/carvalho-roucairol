@@ -18,7 +18,10 @@ REMOTE_PID="$REMOTE_DIR/app.pid"
 
 SSH_OPTS="-o StrictHostKeyChecking=accept-new -o LogLevel=ERROR"
 
-[[ -f "$JAR_LOCAL" ]] || exit 1
+if [[ ! -f "$JAR_LOCAL" ]]; then
+  echo "ERROR: '$JAR_LOCAL' not found. Build it first (mvn clean package)."
+  exit 1
+fi
 
 for host in "${HOSTS[@]}"; do
   ssh $SSH_OPTS "${REMOTE_USER}@${host}" "mkdir -p '$REMOTE_DIR'" >/dev/null 2>&1
