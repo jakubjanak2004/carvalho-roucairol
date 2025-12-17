@@ -11,7 +11,6 @@ import java.util.concurrent.RejectedExecutionException;
 
 public class CLIController extends Controller {
     private final BufferedReader consoleReader;
-    // todo handle when to turn off the running
     private boolean running = true;
 
     public CLIController(NodeService nodeService, DistributedMutexService distributedMutexService) {
@@ -38,9 +37,8 @@ public class CLIController extends Controller {
     private void executeCommand(String command) {
         if (command.equals("s")) {
             System.out.println(nodeService.getNodeState());
-        } else if (command.equals("?")) {
-            // todo implement helping
-            System.out.println("IMPLEMENT HELP...");
+        } else if (command.equals("?") || command.equals("h") || command.equals("help")) {
+            printHelp();
         } else if (command.equals("e")) {
             try {
                 distributedMutexService.requestCriticalSection();
@@ -55,16 +53,30 @@ public class CLIController extends Controller {
             }
         } else if (command.equals("r")) {
             System.out.println(nodeService.getSharedVariable());
-        } else if(command.equals("ping")) {
+        } else if (command.equals("ping")) {
             nodeService.getOtherNodesMap().forEach((address, otherNode) -> {
                 System.out.printf("Sending ping to %s\n", address);
                 otherNode.getGrpcClient().ping();
             });
-        } else if(command.equals("kill")) {
+        } else if (command.equals("kill")) {
             System.out.println("Killing node...");
             System.exit(0);
-        }else if (!command.isEmpty()) {
-            System.out.printf("Unrecognized command:%s\n", command);
+        } else if (!command.isEmpty()) {
+            System.out.printf("Unrecognized command: %s\n", command);
+            System.out.println("Type '?' for help.");
         }
+    }
+
+    private void printHelp() {
+        System.out.println("""
+                Available commands:
+                  s       - Print this node state
+                  r       - Read/print shared variable
+                  e       - Request entry to critical section
+                  l       - Leave critical section
+                  ping    - Send ping to all known nodes
+                  kill    - Terminate this node process
+                  ?       - Show this help (also: h, help)
+                """);
     }
 }

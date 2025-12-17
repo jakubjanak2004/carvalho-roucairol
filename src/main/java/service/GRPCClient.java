@@ -107,7 +107,6 @@ public class GRPCClient {
         channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
 
-    // todo add shaed variable info when connecting for the first time
     private void joinWithNodesRequest(Join joinRequest) {
         logger.info("Sending joinWithNodesRequest to node: {}", serverNetworkAddress);
         try {
@@ -123,7 +122,6 @@ public class GRPCClient {
             }
         } catch (StatusRuntimeException e) {
             logger.warn("JoinWithNodesRequest failed: {} {}", e.getStatus(), e.getMessage());
-            // todo handle when first join to network fails
         }
     }
 

@@ -45,7 +45,6 @@ public class GRPCServer {
         logger.info("gRPC Server started, listening on {}",  port);
     }
 
-    // todo think about moving this
     public static Address networkAddressToAddress(NetworkAddress networkAddress) {
         return Address.newBuilder()
                 .setIpAddress(networkAddress.ipAddress())
@@ -53,12 +52,10 @@ public class GRPCServer {
                 .build();
     }
 
-    // todo think about moving this
     public static NetworkAddress addressToNetworkAddress(Address address) {
         return new NetworkAddress(address.getIpAddress(), address.getPort());
     }
 
-    // todo relocate this, move it to a AddressUtils class with static methods
     public static String AddressToString(Address address) {
         return "{" + address.getIpAddress() + ":" + address.getPort() + "}";
     }
