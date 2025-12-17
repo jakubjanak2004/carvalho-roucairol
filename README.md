@@ -24,3 +24,15 @@ Instances of the algorithm communicate with each other using gRPC.
 The schema defines all procedures required for coordination, along with explanations of their roles in maintaining distributed mutual exclusion.
 
 ![gRPC Procedures](docs/gRPCProcedures.drawio.png)
+
+## Node Connecting 
+
+![Node Connecting to cluster](docs/nodeConnecting.JPG)
+
+## Node Died
+
+![Node Died](docs/nodeDied.JPG)
+
+## Mutual exclusion
+
+![Mutual Exclusion](docs/mutualExclusion.JPG)
