@@ -4,6 +4,7 @@ import model.NetworkAddress;
 import model.OtherNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import service.GRPCClient;
 import service.NodeService;
 
 import java.util.Optional;
@@ -122,10 +123,13 @@ public class DistributedMutexService {
 
     private void sendReplyTo(NetworkAddress receiverNodeNetworkAddress) {
         OtherNode otherNode = otherNodesMap.get(receiverNodeNetworkAddress);
-        otherNode.getHasGranted().set(Boolean.FALSE);
-        otherNode.getGrpcClient().sendReply();
+        AtomicBoolean otherNodeGrant = otherNode.getHasGranted();
+        GRPCClient otherNodeClient = otherNode.getGrpcClient();
+        if (otherNodeGrant.getAndSet(Boolean.FALSE)) {
+            otherNodeClient.sendRequest(lamportClock.get());
+        }
+        otherNodeClient.sendReply();
     }
-
 
     private void synchronizeWithPeersForCriticalSection() {
         lock.lock();
