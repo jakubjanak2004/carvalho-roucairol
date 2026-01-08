@@ -102,11 +102,6 @@ public class GRPCClient {
         }
     }
 
-    // todo not using right now, employ in the gratefull leaving
-    public void shutdown() throws InterruptedException {
-        channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
-    }
-
     private void joinWithNodesRequest(Join joinRequest) {
         logger.info("Sending joinWithNodesRequest to node: {}", serverNetworkAddress);
         try {
